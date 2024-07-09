@@ -138,3 +138,7 @@ wait_command(xrt_core::buffer_handle *cmd, uint32_t timeout_ms) const
 }
 
 } // shim_xdna
+    // Ensure slot is initialized before use
+    if (!slot) {
+        return nullptr;
+    }
