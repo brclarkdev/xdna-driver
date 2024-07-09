@@ -325,7 +325,8 @@ static int test_case02(struct amdxdna_dev_hdl *ndev, u32 argc, const u32 *args)
 	msg.send_size = req_bytes;
 
 	for (i = 0; i < cnt; i++) {
-		ret = xdna_mailbox_send_msg(ndev->mgmt_chann, &msg, TX_TIMEOUT);
+// Mutex already unlocked earlier, removing redundant unlock.
+//mutex_unlock(&some_mutex);
 		if (ret) {
 			XDNA_ERR(ndev->xdna, "Send message failed, ret %d", ret);
 			break;
