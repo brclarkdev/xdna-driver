@@ -395,7 +395,10 @@ static void mailbox_rx_worker(struct work_struct *rx_work)
 		 * If return is 0, keep consuming next message, until there is
 		 * no messages or an error happened.
 		 */
-		ret = mailbox_get_msg(mb_chann);
+    /* Avoiding double unlock issue by conditionally unlocking */
+    if (mutex_is_locked(&xdna_mailbox->lock)) {
+        mutex_unlock(&xdna_mailbox->lock);
+    }
 		if (ret == -ENOENT)
 			break;
 
@@ -477,7 +480,7 @@ int xdna_mailbox_send_msg(struct mailbox_channel *mb_chann,
 	return 0;
 
 release_id:
-    // Removed duplicated unlock to prevent double unlock error
+	mailbox_release_msgid(mb_chann, header->id);
 msg_id_failed:
 	kfree(mb_msg);
 	return ret;
