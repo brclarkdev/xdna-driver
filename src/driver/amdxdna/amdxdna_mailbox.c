@@ -477,7 +477,7 @@ int xdna_mailbox_send_msg(struct mailbox_channel *mb_chann,
 	return 0;
 
 release_id:
-	mailbox_release_msgid(mb_chann, header->id);
+    // Removed duplicated unlock to prevent double unlock error
 msg_id_failed:
 	kfree(mb_msg);
 	return ret;
