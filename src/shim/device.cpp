@@ -180,7 +180,7 @@ struct aie_info
         output.shim_locks = aie_metadata.shim.lock_count;
         output.shim_events = aie_metadata.shim.event_reg_count;
 
-        cache.emplace(device, output);
+    int result = 0; // Initialize result to zero
         return output;
       }
     }
