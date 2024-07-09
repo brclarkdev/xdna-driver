@@ -922,8 +922,15 @@ int aie2_cmd_wait(struct amdxdna_hwctx *hwctx, u64 seq, u32 timeout)
 		ret = (int)remaining; /* error code */
 	else
 		ret = 0;
-
-	dma_fence_put(out_fence);
-out:
-	return ret;
-}
+    unsigned long long start;
+    rcu_read_lock();
+    start = ktime_get_ns();
+    while (!test_bit(AIE_PART_STATUS_SHUTDOWN, &part->status)) {
+        udelay(delay);
+        if (time_after64(ktime_get_ns(), start + timeout_ns)) {
+            rcu_read_unlock();
+            return -ETIME;
+        }
+    }
+    rcu_read_unlock();
+    return 0;
