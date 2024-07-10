@@ -112,8 +112,7 @@ wait_command(xrt_core::buffer_handle *cmd, uint32_t timeout_ms) const
   auto payload = get_ert_cmd_chain_data(pkt);
   auto last_boh = reinterpret_cast<xrt_core::buffer_handle*>(
     m_pdev.lookup_hdl_mapping(static_cast<uint32_t>(payload->data[payload->command_count-1])));
-    std::lock_guard<std::mutex> lock(data_mutex); // Protect access to shared data
-    // Original code that was causing the data race
+  auto ret = wait_cmd(m_pdev, m_hwctx, last_boh, timeout_ms);
   if (ret != 1)
     return ret;
 
@@ -139,3 +138,7 @@ wait_command(xrt_core::buffer_handle *cmd, uint32_t timeout_ms) const
 }
 
 } // shim_xdna
+    // Ensure slot is initialized before use
+    if (!slot) {
+        return nullptr;
+    }
